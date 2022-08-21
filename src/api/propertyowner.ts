@@ -95,7 +95,7 @@ export abstract class PropertyOwner extends EventEmitter {
     return ep;
   }
 
-  public updateProperty(key: string, value: unknown) {
+  public updateProperty(key: string, value: PropertyValue) {
     if (AllProperties[this.type][key] !== undefined) {
       let assignableValue;
       switch (AllProperties[this.type][key].type) {

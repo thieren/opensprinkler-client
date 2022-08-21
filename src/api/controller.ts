@@ -10,7 +10,7 @@ export class Controller extends PropertyOwner {
     super(PropertyOwnerType.CONTROLLER, api);
   }
 
-  public override updateProperty(key: string, value: unknown): void {
+  public override updateProperty(key: string, value: PropertyValue): void {
     let newValue = value;
     if (key === PropertyKey.DEVICE_TIME) {
       this.timedifference = Date.now() - (value as number);
