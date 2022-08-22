@@ -17,7 +17,7 @@ import { OpensprinklerApi } from './api';
 export abstract class PropertyOwner extends EventEmitter {
   protected log = Logging.getLoggerInstance();
 
-  private api?: OpensprinklerApi;
+  protected api?: OpensprinklerApi;
 
   protected properties: { [index: string]: PropertyValue } = {};
   private type: PropertyOwnerType;
@@ -101,13 +101,25 @@ export abstract class PropertyOwner extends EventEmitter {
       switch (AllProperties[this.type][key].type) {
         case 'number':
           if (typeof value !== 'number') {
-            throw new InvalidConversionError(`Value ${value} with type ${typeof value} could be assigned to property ${PropertyKey[key]}`);
+            throw new InvalidConversionError(
+              `Value ${value} with type ${typeof value} could not be assigned to property ${PropertyKey[key]}`,
+            );
           }
           assignableValue = value as number;
+          break;
+        
+        case 'string[]':
+          if (!Array.isArray(value) || (value.length > 0 && typeof value[0] !== 'string')) {
+            throw new InvalidConversionError(
+              `Value ${value} could not be assigned to property ${PropertyKey[key]} since it is no array of strings`,
+            );
+          }
+          assignableValue = value as string[];
           break;
       }
 
       if (AllProperties[this.type][key].validValues && AllProperties[this.type][key].validValues!.indexOf(assignableValue) === -1) {
+        this.log.error(`Value ${value} could not be assigned to property ${PropertyKey[key]}, since it is not listed as valid value.`);
         return;
       }
 

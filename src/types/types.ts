@@ -35,6 +35,7 @@ export declare type Endpoint = WriteEndpoint | ReadEndpoint;
 export enum ReadEndpoint {
   CONTROLLER_VARIABLES = 'jc',
   OPTIONS = 'jo',
+  STATION_NAMES_AND_ATTRIBUTES = 'jn',
 }
 
 export enum WriteEndpoint {
@@ -44,9 +45,11 @@ export enum WriteEndpoint {
 
 export enum PropertyKey {
   DEVICE_TIME = 'devt',
+  NUMBER_OF_BOARDS = 'nbrd',
   OPERATION_ENABLE = 'en',
   FIRMWARE_VERSION = 'fwv',
   RAIN_DELAY = 'rd',
+  STATION_NAMES = 'snames',
 }
 
 export declare type PropertyMetaData = {
@@ -76,6 +79,13 @@ export const DeviceTimeProperty: PropertyMetaData = {
   type: 'number',
 };
 
+export const NumberOfBoardsProperty: PropertyMetaData = {
+  key: PropertyKey.NUMBER_OF_BOARDS,
+  readEndpoint: ReadEndpoint.CONTROLLER_VARIABLES,
+  minimumFw: OsApiVersion.Firmware_2_1_0,
+  type: 'number',
+};
+
 export const OperationActiveProperty: PropertyMetaData = {
   key: PropertyKey.OPERATION_ENABLE,
   readEndpoint: ReadEndpoint.CONTROLLER_VARIABLES,
@@ -93,7 +103,15 @@ export const RainDelayActiveProperty: PropertyMetaData = {
   type: 'number',
 };
 
-export declare type PropertyValue = string | number;
+// station
+export const StationNamesProperty: PropertyMetaData = {
+  key: PropertyKey.STATION_NAMES,
+  readEndpoint: ReadEndpoint.STATION_NAMES_AND_ATTRIBUTES,
+  minimumFw: OsApiVersion.Firmware_2_1_0,
+  type: 'string[]',
+};
+
+export declare type PropertyValue = string | string[] | number;
 
 export interface Properties {
   [index: string]: PropertyValue;
@@ -114,8 +132,13 @@ export const AllProperties: IndexedPropertyOwner = {
 
   [PropertyOwnerType.CONTROLLER]: {
     [PropertyKey.DEVICE_TIME]: DeviceTimeProperty,
+    [PropertyKey.NUMBER_OF_BOARDS]: NumberOfBoardsProperty,
     [PropertyKey.OPERATION_ENABLE]: OperationActiveProperty,
     [PropertyKey.RAIN_DELAY]: RainDelayActiveProperty,
+  },
+
+  [PropertyOwnerType.STATION]: {
+    [PropertyKey.STATION_NAMES]: StationNamesProperty,
   },
 };
 

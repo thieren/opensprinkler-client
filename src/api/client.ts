@@ -51,6 +51,9 @@ export class OpensprinklerClient {
       let endpointResponses = new Map<Endpoint, object>();
       this.controller.lockWrites(true);
       endpointResponses = await this.controller.refreshProperties(endpointResponses);
+      for (const station of this.controller.getStations()) {
+        endpointResponses = await station.refreshProperties(endpointResponses);
+      }
     } catch(err) {
       this.log.error(`Data refresh could not continue due to error: ${err}`);
     } finally {

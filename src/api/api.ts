@@ -32,14 +32,15 @@ export class OpensprinklerApi extends PropertyOwner {
       const request = new ApiRequest(this.config, { endpoint: ReadEndpoint.OPTIONS });
       const json = await request.execute();
       this.updateProperties(json);
-      const apiVersion = this.getPropertyValue(PropertyKey.FIRMWARE_VERSION);
+      const apiVersion = this.getPropertyValue(PropertyKey.FIRMWARE_VERSION) as number;
       if (apiVersion) {
-        this.log.info(`Connected to controller with firmware: ${OsApiVersion[apiVersion]}`);
         if (apiVersion >= OsApiVersion.Firmware_2_1_9) {
           this.log.warn(
             'Your Controller uses a newer firmware than 2.1.9. This might result in issues.' + 
             'Please look if there is already an update available to this client.',
           );
+        } else {
+          this.log.info(`Connected to controller with firmware: ${OsApiVersion[apiVersion]}`);
         }
       } else {
         throw new NotConnectedError();
@@ -62,7 +63,7 @@ export class OpensprinklerApi extends PropertyOwner {
     }
   }
 
-  public async writePropertyValue(endpoint: WriteEndpoint, key: string, value: string | number): Promise<void> {
+  public async writePropertyValue(endpoint: WriteEndpoint, key: string, value: PropertyValue): Promise<void> {
     const properties: Properties = {};
     properties[key] = value;
     return this.writePropertyValues(endpoint, properties);
