@@ -1,4 +1,4 @@
-import { PropertyKey, PropertyOwnerType, PropertyValue } from '../types/types';
+import { Endpoint, PropertyKey, PropertyOwnerType, PropertyValue } from '../types/types';
 import { OpensprinklerApi } from './api';
 import { PropertyOwner } from './propertyowner';
 import { Station } from './station';
@@ -13,7 +13,7 @@ export class Controller extends PropertyOwner {
     super(PropertyOwnerType.CONTROLLER, api);
   }
 
-  public override updateProperty(key: string, value: PropertyValue): void {
+  public override async updateProperty(key: string, value: PropertyValue): Promise<void> {
     let newValue = value;
     if (key === PropertyKey.DEVICE_TIME) {
       this.timedifference = Date.now() - (value as number);
@@ -21,10 +21,13 @@ export class Controller extends PropertyOwner {
       this.log.info(`Found ${(value as number)} station boards. Updating station data...`);
       // update station data
       const expectedNumberOfStations = (value as number) * 8;
+      let endpointResponses = new Map<Endpoint, object>();
       while (this.stations.length < expectedNumberOfStations && this.api) {
         this.log.debug(`Adding new station with index: ${this.stations.length}`);
         const station = new Station(this.stations.length, this.api);
+        endpointResponses = await station.refreshProperties(endpointResponses);
         this.stations.push(station);
+        this.emit('station added', station);
       }
     } else if (key === PropertyKey.RAIN_DELAY) {
       newValue = (value as number >= 1) ? 1 : 0;

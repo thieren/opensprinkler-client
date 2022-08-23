@@ -5,8 +5,10 @@ import { Controller } from './controller';
 
 import { Logger } from 'ts-log';
 import { Logging } from '../util.ts/Logger';
+import { Station } from './station';
+import EventEmitter from 'events';
 
-export class OpensprinklerClient {
+export class OpensprinklerClient extends EventEmitter {
   private config: OpensprinklerConfig;
   private api: OpensprinklerApi;
   private log: Logger;
@@ -16,6 +18,7 @@ export class OpensprinklerClient {
   private refreshTimeout?: NodeJS.Timeout;
 
   constructor(config: OpensprinklerConfig, log: Logger | undefined = undefined) {
+    super();
     
     if (log) {
       Logging.setLoggerInstance(log);
@@ -27,6 +30,8 @@ export class OpensprinklerClient {
 
     this.api = new OpensprinklerApi(this.config);
     this.controller = new Controller(this.api);
+
+    this.controller.on('station added', this.onStationAdded.bind(this));
   }
 
   public async connect(): Promise<void> {
@@ -93,5 +98,9 @@ export class OpensprinklerClient {
       this.log.error(`Unable to set controller to ${value}, due to error: ${err}`);
       return Promise.reject(err);
     }
+  }
+
+  private onStationAdded(station: Station) {
+    this.emit('station added', station);
   }
 }

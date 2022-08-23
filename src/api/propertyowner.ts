@@ -164,7 +164,7 @@ export abstract class PropertyOwner extends EventEmitter {
       }
 
       await this.api.writePropertyValue(endpoint, key, value);
-      this.updateProperty(key, value);
+      await this.updateProperty(key, value);
     } catch (err) {
       return Promise.reject(err);
     }
