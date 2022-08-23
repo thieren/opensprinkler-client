@@ -36,6 +36,10 @@ export class Controller extends PropertyOwner {
     return this.stations;
   }
 
+  public getActiveStations(): Station[] {
+    return this.stations.filter(station => !station.isDisabled());
+  }
+
   public getStationByName(name: string): Station | undefined {
     return this.stations.find(s => s.getName() === name);
   }
