@@ -102,16 +102,25 @@ export abstract class PropertyOwner extends EventEmitter {
         case 'number':
           if (typeof value !== 'number') {
             throw new InvalidConversionError(
-              `Value ${value} with type ${typeof value} could not be assigned to property ${PropertyKey[key]}`,
+              `Value ${value} with type ${typeof value} could not be assigned to property ${key}`,
             );
           }
           assignableValue = value as number;
+          break;
+
+        case 'number[]':
+          if (!Array.isArray(value) || (value.length > 0 && typeof value[0] !== 'number')) {
+            throw new InvalidConversionError(
+              `Value ${value} could not be assigned to property ${key} since it is no array of strings`,
+            );
+          }
+          assignableValue = value as number[];
           break;
         
         case 'string[]':
           if (!Array.isArray(value) || (value.length > 0 && typeof value[0] !== 'string')) {
             throw new InvalidConversionError(
-              `Value ${value} could not be assigned to property ${PropertyKey[key]} since it is no array of strings`,
+              `Value ${value} could not be assigned to property ${key} since it is no array of strings`,
             );
           }
           assignableValue = value as string[];
@@ -119,7 +128,7 @@ export abstract class PropertyOwner extends EventEmitter {
       }
 
       if (AllProperties[this.type][key].validValues && AllProperties[this.type][key].validValues!.indexOf(assignableValue) === -1) {
-        this.log.error(`Value ${value} could not be assigned to property ${PropertyKey[key]}, since it is not listed as valid value.`);
+        this.log.error(`Value ${value} could not be assigned to property ${key}, since it is not listed as valid value.`);
         return;
       }
 

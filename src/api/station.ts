@@ -21,4 +21,17 @@ export class Station extends PropertyOwner {
     }
     return undefined;
   }
+
+  public isDisabled(): boolean {
+    const stnDis = this.getPropertyValue(PropertyKey.STATION_DISABLED) as number[] | undefined;
+    let boardIndex = 0;
+    let tmpIndex = this.index;
+    while (tmpIndex > 7) {
+      boardIndex++;
+      tmpIndex -= 8;
+    }
+    const value = (stnDis !== undefined && (1 << tmpIndex & stnDis[boardIndex]) > 0);
+    this.log.debug(`Getting station '${this.getName()}' (${this.index}) disabled flag: ${value}`);
+    return value;
+  }
 }

@@ -60,10 +60,14 @@ export class Controller extends PropertyOwner {
   }
 
   public isInUse(): boolean {
-    const sbits = this.getPropertyValue(PropertyKey.STATION_STATUS_BITS);
-    const value = (sbits !== undefined && sbits > 0);
+    const sbits = this.getPropertyValue(PropertyKey.STATION_STATUS_BITS) as number[] | undefined;
+    if (sbits === undefined) {
+      return false;
+    }
+    let value = 0;
+    sbits?.forEach(s => value += s);
     this.log.debug(`Getting controller in use state: ${value} (sbits: ${sbits})`);
-    return value;
+    return (value > 0);
   }
 
   public isRainDelayActive(): boolean {

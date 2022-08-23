@@ -53,6 +53,9 @@ export class OpensprinklerClient {
       endpointResponses = await this.controller.refreshProperties(endpointResponses);
       for (const station of this.controller.getStations()) {
         endpointResponses = await station.refreshProperties(endpointResponses);
+        if (station.isDisabled()) {
+          this.log.debug(`Station '${station.getName()}' is flaged as disabled.`);
+        }
       }
     } catch(err) {
       this.log.error(`Data refresh could not continue due to error: ${err}`);

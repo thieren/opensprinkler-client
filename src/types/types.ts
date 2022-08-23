@@ -51,6 +51,7 @@ export enum PropertyKey {
   FIRMWARE_VERSION = 'fwv',
   RAIN_DELAY = 'rd',
   STATION_NAMES = 'snames',
+  STATION_DISABLED = 'stn_dis',
 }
 
 export declare type PropertyMetaData = {
@@ -100,7 +101,7 @@ export const StationStatusProperty: PropertyMetaData = {
   key: PropertyKey.STATION_STATUS_BITS,
   readEndpoint: ReadEndpoint.CONTROLLER_VARIABLES,
   minimumFw: OsApiVersion.Firmware_2_1_0,
-  type: 'number',
+  type: 'number[]',
 };
 
 export const RainDelayActiveProperty: PropertyMetaData = {
@@ -119,7 +120,14 @@ export const StationNamesProperty: PropertyMetaData = {
   type: 'string[]',
 };
 
-export declare type PropertyValue = string | string[] | number;
+export const StationDisabledProperty: PropertyMetaData = {
+  key: PropertyKey.STATION_DISABLED,
+  readEndpoint: ReadEndpoint.STATION_NAMES_AND_ATTRIBUTES,
+  minimumFw: OsApiVersion.Firmware_2_1_0,
+  type: 'number[]',
+};
+
+export declare type PropertyValue = string | string[] | number | number[];
 
 export interface Properties {
   [index: string]: PropertyValue;
@@ -148,6 +156,7 @@ export const AllProperties: IndexedPropertyOwner = {
 
   [PropertyOwnerType.STATION]: {
     [PropertyKey.STATION_NAMES]: StationNamesProperty,
+    [PropertyKey.STATION_DISABLED]: StationDisabledProperty,
   },
 };
 
