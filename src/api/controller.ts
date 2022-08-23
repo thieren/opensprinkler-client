@@ -59,6 +59,13 @@ export class Controller extends PropertyOwner {
     return value === 1;
   }
 
+  public isInUse(): boolean {
+    const sbits = this.getPropertyValue(PropertyKey.STATION_STATUS_BITS);
+    const value = (sbits !== undefined && sbits > 0);
+    this.log.debug(`Getting controller in use state: ${value} (sbits: ${sbits})`);
+    return value;
+  }
+
   public isRainDelayActive(): boolean {
     const value = this.getPropertyValue(PropertyKey.RAIN_DELAY);
     this.log.debug('Getting controller \'rainDelay\' state: ', value);

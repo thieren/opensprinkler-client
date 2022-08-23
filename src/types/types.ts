@@ -47,6 +47,7 @@ export enum PropertyKey {
   DEVICE_TIME = 'devt',
   NUMBER_OF_BOARDS = 'nbrd',
   OPERATION_ENABLE = 'en',
+  STATION_STATUS_BITS = 'sbits',
   FIRMWARE_VERSION = 'fwv',
   RAIN_DELAY = 'rd',
   STATION_NAMES = 'snames',
@@ -95,6 +96,13 @@ export const OperationActiveProperty: PropertyMetaData = {
   validValues: [0, 1],
 };
 
+export const StationStatusProperty: PropertyMetaData = {
+  key: PropertyKey.STATION_STATUS_BITS,
+  readEndpoint: ReadEndpoint.CONTROLLER_VARIABLES,
+  minimumFw: OsApiVersion.Firmware_2_1_0,
+  type: 'number',
+};
+
 export const RainDelayActiveProperty: PropertyMetaData = {
   key: PropertyKey.RAIN_DELAY,
   readEndpoint: ReadEndpoint.CONTROLLER_VARIABLES,
@@ -134,6 +142,7 @@ export const AllProperties: IndexedPropertyOwner = {
     [PropertyKey.DEVICE_TIME]: DeviceTimeProperty,
     [PropertyKey.NUMBER_OF_BOARDS]: NumberOfBoardsProperty,
     [PropertyKey.OPERATION_ENABLE]: OperationActiveProperty,
+    [PropertyKey.STATION_STATUS_BITS]: StationStatusProperty,
     [PropertyKey.RAIN_DELAY]: RainDelayActiveProperty,
   },
 
