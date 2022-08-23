@@ -34,4 +34,20 @@ export class Station extends PropertyOwner {
     this.log.debug(`Getting station '${this.getName()}' (${this.index}) disabled flag: ${value}`);
     return value;
   }
+
+  public isInUse(): boolean {
+    const sbits = this.getPropertyValue(PropertyKey.STATION_STATUS_BITS) as number[] | undefined;
+    if (sbits === undefined) {
+      return false;
+    }
+    let boardIndex = 0;
+    let tmpIndex = this.index;
+    while (tmpIndex > 7) {
+      boardIndex++;
+      tmpIndex -= 8;
+    }
+    const value = ((1 << tmpIndex & sbits[boardIndex]) > 0);
+    this.log.debug(`Getting station '${this.getName()}' in use state: ${value} (sbits: ${sbits})`);
+    return value;
+  }
 }

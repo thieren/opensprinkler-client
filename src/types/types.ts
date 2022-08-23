@@ -157,6 +157,7 @@ export const AllProperties: IndexedPropertyOwner = {
   [PropertyOwnerType.STATION]: {
     [PropertyKey.STATION_NAMES]: StationNamesProperty,
     [PropertyKey.STATION_DISABLED]: StationDisabledProperty,
+    [PropertyKey.STATION_STATUS_BITS]: StationStatusProperty,
   },
 };
 
