@@ -111,10 +111,20 @@ export abstract class PropertyOwner extends EventEmitter {
         case 'number[]':
           if (!Array.isArray(value) || (value.length > 0 && typeof value[0] !== 'number')) {
             throw new InvalidConversionError(
-              `Value ${value} could not be assigned to property ${key} since it is no array of strings`,
+              `Value ${value} could not be assigned to property ${key} since it is no array of numbers`,
             );
           }
           assignableValue = value as number[];
+          break;
+
+        case 'number[][]':
+          if (!Array.isArray(value) || (value.length > 0 && !Array.isArray(value[0])) ||
+              (Array.isArray(value[0]) && value[0].length > 0 && typeof value[0][0] !== 'number')) {
+            throw new InvalidConversionError(
+              `Value ${value} could not be assigned to property ${key} since it is no array of array of numbers`,
+            );
+          }
+          assignableValue = value as number[][];
           break;
         
         case 'string[]':

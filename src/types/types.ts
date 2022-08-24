@@ -48,6 +48,7 @@ export enum PropertyKey {
   NUMBER_OF_BOARDS = 'nbrd',
   OPERATION_ENABLE = 'en',
   STATION_STATUS_BITS = 'sbits',
+  PROGRAM_STATUS_DATA = 'ps',
   FIRMWARE_VERSION = 'fwv',
   RAIN_DELAY = 'rd',
   STATION_NAMES = 'snames',
@@ -120,6 +121,13 @@ export const StationNamesProperty: PropertyMetaData = {
   type: 'string[]',
 };
 
+export const ProgramStatusDataProperty: PropertyMetaData = {
+  key: PropertyKey.PROGRAM_STATUS_DATA,
+  readEndpoint: ReadEndpoint.CONTROLLER_VARIABLES,
+  minimumFw: OsApiVersion.Firmware_2_1_0,
+  type: 'number[][]',
+};
+
 export const StationDisabledProperty: PropertyMetaData = {
   key: PropertyKey.STATION_DISABLED,
   readEndpoint: ReadEndpoint.STATION_NAMES_AND_ATTRIBUTES,
@@ -127,7 +135,7 @@ export const StationDisabledProperty: PropertyMetaData = {
   type: 'number[]',
 };
 
-export declare type PropertyValue = string | string[] | number | number[];
+export declare type PropertyValue = string | string[] | number | number[] | number[][];
 
 export interface Properties {
   [index: string]: PropertyValue;
@@ -158,6 +166,7 @@ export const AllProperties: IndexedPropertyOwner = {
     [PropertyKey.STATION_NAMES]: StationNamesProperty,
     [PropertyKey.STATION_DISABLED]: StationDisabledProperty,
     [PropertyKey.STATION_STATUS_BITS]: StationStatusProperty,
+    [PropertyKey.PROGRAM_STATUS_DATA]: ProgramStatusDataProperty,
   },
 };
 
