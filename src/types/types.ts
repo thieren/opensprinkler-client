@@ -163,11 +163,10 @@ export const AllProperties: IndexedPropertyOwner = {
   },
 
   [PropertyOwnerType.STATION]: {
+    [PropertyKey.DEVICE_TIME]: DeviceTimeProperty,
     [PropertyKey.STATION_NAMES]: StationNamesProperty,
     [PropertyKey.STATION_DISABLED]: StationDisabledProperty,
     [PropertyKey.STATION_STATUS_BITS]: StationStatusProperty,
     [PropertyKey.PROGRAM_STATUS_DATA]: ProgramStatusDataProperty,
   },
 };
-
-
