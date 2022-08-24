@@ -34,7 +34,7 @@ export class OpensprinklerApi extends PropertyOwner {
       this.updateProperties(json);
       const apiVersion = this.getPropertyValue(PropertyKey.FIRMWARE_VERSION) as number;
       if (apiVersion) {
-        if (apiVersion >= OsApiVersion.Firmware_2_1_9) {
+        if (apiVersion > OsApiVersion.Firmware_2_1_9) {
           this.log.warn(
             'Your Controller uses a newer firmware than 2.1.9. This might result in issues.' + 
             'Please look if there is already an update available to this client.',

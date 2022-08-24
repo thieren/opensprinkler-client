@@ -1,4 +1,5 @@
 import { Endpoint, PropertyKey, PropertyOwnerType, PropertyValue } from '../types/types';
+import { EpochTimeNow } from '../util.ts/utils';
 import { OpensprinklerApi } from './api';
 import { PropertyOwner } from './propertyowner';
 import { Station } from './station';
@@ -16,7 +17,7 @@ export class Controller extends PropertyOwner {
   public override async updateProperty(key: string, value: PropertyValue): Promise<void> {
     let newValue = value;
     if (key === PropertyKey.DEVICE_TIME) {
-      this.timedifference = Date.now() - (value as number);
+      this.timedifference = EpochTimeNow() - (value as number);
     } else if (key === PropertyKey.NUMBER_OF_BOARDS && (value as number)*8 !== this.stations.length) {
       this.log.info(`Found ${(value as number)} station boards. Updating station data...`);
       // update station data
@@ -55,7 +56,7 @@ export class Controller extends PropertyOwner {
   }
 
   public getControllerTime(): number {
-    const value = Date.now() - this.timedifference;
+    const value = EpochTimeNow() - this.timedifference;
     this.log.debug('Getting controller time:', value);
     return value;
   }

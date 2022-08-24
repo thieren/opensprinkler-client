@@ -1,4 +1,5 @@
 import { PropertyKey, PropertyOwnerType, PropertyValue } from '../types/types';
+import { EpochTimeNow } from '../util.ts/utils';
 import { OpensprinklerApi } from './api';
 import { PropertyOwner } from './propertyowner';
 
@@ -18,18 +19,21 @@ export class Station extends PropertyOwner {
   }
 
   public override updateProperty(key: string, value: PropertyValue): void {
-    if (this.wateringEndTime !== undefined && this.wateringEndTime < Date.now()) {
+    if (this.wateringEndTime !== undefined && this.wateringEndTime < EpochTimeNow()) {
       this.wateringEndTime = undefined;
     }
 
     const newValue = value;
     if (key === PropertyKey.DEVICE_TIME) {
-      this.timedifference = Date.now() - (value as number);
+      this.timedifference = EpochTimeNow() - (value as number);
     } else if (key === PropertyKey.PROGRAM_STATUS_DATA) {
       const psd = value as number[][];
       if (psd.length > this.index && psd[this.index].length === 3) {
         const rem = psd[this.index][1];
-        this.wateringEndTime = Date.now() + rem;
+        const start = psd[this.index][2];
+        if (rem !== 0 && start !== 0) {
+          this.wateringEndTime = start + rem + this.timedifference;
+        }
       }
     }
     super.updateProperty(key, newValue);
@@ -73,10 +77,14 @@ export class Station extends PropertyOwner {
   }
 
   public getRemainingWateringTime(): number {
-    if (this.wateringEndTime !== undefined) {
-      const rem = this.wateringEndTime - Date.now();
-      return (rem > 0) ? rem : 0;
+    if (!this.isInUse() || this.wateringEndTime === undefined) {
+      return 0;
     }
-    return 0;
+    const rem = this.wateringEndTime - EpochTimeNow();
+    return (rem > 0) ? rem : 0;
+  }
+
+  public getWateringEndTime(): number {
+    return (this.wateringEndTime !== undefined) ? this.wateringEndTime : 0;
   }
 }
