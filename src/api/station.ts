@@ -1,4 +1,4 @@
-import { PropertyKey, PropertyOwnerType, PropertyValue } from '../types/types';
+import { PropertyKey, PropertyOwnerType, PropertyValue, WriteEndpoint } from '../types/types';
 import { EpochTimeNow } from '../util.ts/utils';
 import { OpensprinklerApi } from './api';
 import { PropertyOwner } from './propertyowner';
@@ -18,7 +18,7 @@ export class Station extends PropertyOwner {
     this.index = index;
   }
 
-  public override updateProperty(key: string, value: PropertyValue): void {
+  public override async updateProperty(key: string, value: PropertyValue) {
     if (this.wateringEndTime !== undefined && this.wateringEndTime < EpochTimeNow()) {
       this.wateringEndTime = undefined;
     }
@@ -36,7 +36,11 @@ export class Station extends PropertyOwner {
         }
       }
     }
-    super.updateProperty(key, newValue);
+    await super.updateProperty(key, newValue);
+  }
+
+  public getIndex(): number {
+    return this.index;
   }
 
   public getName(): string | undefined {
@@ -58,6 +62,37 @@ export class Station extends PropertyOwner {
     const value = (stnDis !== undefined && (1 << tmpIndex & stnDis[boardIndex]) > 0);
     this.log.debug(`Getting station '${this.getName()}' (${this.index}) disabled flag: ${value}`);
     return value;
+  }
+
+  public async setDisabled(value = true): Promise<void> {
+    try {
+      if (!this.api) {
+        throw new Error('no api specified for request');
+      }
+
+      let boardIndex = 0;
+      let tmpIndex = this.index;
+      while (tmpIndex > 7) {
+        boardIndex++;
+        tmpIndex -= 8;
+      }
+      const current = await this.refreshProperty(PropertyKey.STATION_DISABLED) as number[];
+
+      if (current.length < boardIndex) {
+        throw new Error('Invalid return value for disabled stations');
+      }
+
+      const isDisabled = ((current[boardIndex] & (1 << tmpIndex)) > 0);
+
+      if (isDisabled !== value) {
+        const newValue = (value)
+          ? (current[boardIndex] | (1 << tmpIndex)) // set disabled
+          : (current[boardIndex] & ((1 << tmpIndex) ^ 255)); // set disabled
+        await this.api.writePropertyValue(WriteEndpoint.STATION_NAMES_AND_ATTRIBUTES, `d${boardIndex}`, newValue);
+      }
+    } catch (err) {
+      return Promise.reject(err);
+    }
   }
 
   public isInUse(): boolean {

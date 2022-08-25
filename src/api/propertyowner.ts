@@ -42,16 +42,17 @@ export abstract class PropertyOwner extends EventEmitter {
     }
   }
 
-  private async waitForUnlock(): Promise<void> {
+  protected async waitForUnlock(): Promise<void> {
     if (!this.writeLocked) {
       return Promise.resolve();
     }
 
     return new Promise((resolve, reject) => {
       const unlockTimeout = setTimeout(() => {
+        this.log.warn('Write lock for property refresh was not resolved correctly!');
         this.lockWrites(false);
         resolve();
-      }, 5000);
+      }, 7500);
 
       this.once('unlocked', () => {
         if (unlockTimeout) {
@@ -76,10 +77,29 @@ export abstract class PropertyOwner extends EventEmitter {
           response = await this.api.getEndpointResponse(endpoint);
           endpointResponses.set(endpoint, response);
         }
-        this.updateProperties(response);
+        await this.updateProperties(response);
       }
 
       return Promise.resolve(endpointResponses);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  public async refreshProperty(key: PropertyKey): Promise<PropertyValue> {
+    try {
+      if (!this.api) {
+        throw new Error('no api specified for request');
+      }
+
+      const endpoint = this.getPropertyReadEndpoint(key);
+      const response = await this.api.getEndpointResponse(endpoint);
+      await this.updateProperties(response);
+      const value = this.getPropertyValue(key);
+      if (value === undefined) {
+        return Promise.reject('no property value found');
+      }
+      return Promise.resolve(value);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -95,7 +115,7 @@ export abstract class PropertyOwner extends EventEmitter {
     return ep;
   }
 
-  public updateProperty(key: string, value: PropertyValue) {
+  public async updateProperty(key: string, value: PropertyValue) {
     if (AllProperties[this.type][key] !== undefined) {
       let assignableValue;
       switch (AllProperties[this.type][key].type) {
@@ -148,10 +168,14 @@ export abstract class PropertyOwner extends EventEmitter {
     }
   }
 
-  protected updateProperties(source: object) {
-    Object.keys(source).forEach((key) => {
-      this.updateProperty(key, source[key]);
-    });
+  protected async updateProperties(source: object) {
+    try {
+      for (const key of Object.keys(source)) {
+        await this.updateProperty(key, source[key]);
+      }
+    } catch (err) {
+      throw err as Error;
+    }
   }
 
   public async writeProperty(key: PropertyKey, value: PropertyValue): Promise<void> {

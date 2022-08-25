@@ -71,6 +71,8 @@ export class OpensprinklerApi extends PropertyOwner {
 
   public async writePropertyValues(endpoint: WriteEndpoint, properties: Properties): Promise<void> {
     try {
+      await this.waitForUnlock();
+      
       if (!this.connected) {
         throw new NotConnectedError();
       }
