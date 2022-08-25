@@ -1,3 +1,4 @@
+import { StationAlreadyRunningError } from '../types/errors';
 import { PropertyKey, PropertyOwnerType, PropertyValue, WriteEndpoint } from '../types/types';
 import { EpochTimeNow } from '../util.ts/utils';
 import { OpensprinklerApi } from './api';
@@ -49,6 +50,53 @@ export class Station extends PropertyOwner {
       return names[this.index];
     }
     return undefined;
+  }
+
+  public async manualStart(duration: number, stop = false): Promise<void> {
+    try {
+      if (!this.api) {
+        throw new Error('no api specified for request');
+      }
+
+      if (duration <= 0 && !stop) {
+        throw new Error(`invalid duration value to run station: ${duration}`);
+      }
+
+      await this.refreshProperty(PropertyKey.STATION_STATUS_BITS);
+      if (this.isInUse() && !stop) {
+        throw new StationAlreadyRunningError();
+      }
+
+      await this.api.writePropertyValues(WriteEndpoint.MANUAL_STATION_RUN, {
+        'sid': this.index,
+        'en': (stop) ? 0 : 1,
+        't': (stop) ? 0 : duration,
+      });
+
+      // update raw properties
+      let boardIndex = 0;
+      let tmpIndex = this.index;
+      while (tmpIndex > 7) {
+        boardIndex++;
+        tmpIndex -= 8;
+      }
+      const newsbits = this.getPropertyValue(PropertyKey.STATION_STATUS_BITS);
+      const newps = this.getPropertyValue(PropertyKey.PROGRAM_STATUS_DATA)
+      if (newps === undefined || newsbits === undefined) {
+        throw new Error('invalid property data');
+      }
+      newsbits[boardIndex] = stop ? 0 : newsbits[boardIndex] | (1 << tmpIndex);
+      newps[this.index] = stop ? [0, 0, 0] : [99, duration, EpochTimeNow() - this.timedifference];
+      await this.updateProperty(PropertyKey.STATION_STATUS_BITS, newsbits);
+      await this.updateProperty(PropertyKey.PROGRAM_STATUS_DATA, newps);
+      
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  public async stop(): Promise<void> {
+    return this.manualStart(0, true);
   }
 
   public isDisabled(): boolean {

@@ -45,6 +45,7 @@ export class OpensprinklerClient extends EventEmitter {
   }
 
   public stopClient() {
+    this.log.info('Stopping Opensprinkler client...');
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }

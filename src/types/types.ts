@@ -42,6 +42,7 @@ export enum WriteEndpoint {
   CONTROLLER_VARIABLES = 'cv',
   OPTIONS = 'co',
   STATION_NAMES_AND_ATTRIBUTES = 'cs',
+  MANUAL_STATION_RUN = 'cm',
 }
 
 export enum PropertyKey {
@@ -132,7 +133,6 @@ export const ProgramStatusDataProperty: PropertyMetaData = {
 export const StationDisabledProperty: PropertyMetaData = {
   key: PropertyKey.STATION_DISABLED,
   readEndpoint: ReadEndpoint.STATION_NAMES_AND_ATTRIBUTES,
-  writeEndpoint: WriteEndpoint.STATION_NAMES_AND_ATTRIBUTES,
   minimumFw: OsApiVersion.Firmware_2_1_0,
   type: 'number[]',
 };

@@ -48,6 +48,14 @@ export class ApiRequest {
       const response = await got(url, {
         method: 'GET',
         searchParams: searchParams,
+        timeout: {
+          lookup: 100,
+          connect: 2500,
+          secureConnect: 500,
+          socket: 1000,
+          send: 10000,
+          response: 30000,
+        },
       });
 
       if (response.statusCode < 200 || response.statusCode > 299) {

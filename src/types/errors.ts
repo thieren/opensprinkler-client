@@ -22,3 +22,9 @@ export class InvalidRequestError extends Error {
 export class InvalidEndpointError extends Error { }
 
 export class InvalidConversionError extends Error { }
+
+export class StationAlreadyRunningError extends Error {
+  constructor() {
+    super('Station already running');
+  }
+}
