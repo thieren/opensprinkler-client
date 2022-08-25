@@ -89,6 +89,10 @@ export class Station extends PropertyOwner {
           ? (current[boardIndex] | (1 << tmpIndex)) // set disabled
           : (current[boardIndex] & ((1 << tmpIndex) ^ 255)); // set disabled
         await this.api.writePropertyValue(WriteEndpoint.STATION_NAMES_AND_ATTRIBUTES, `d${boardIndex}`, newValue);
+
+        // update raw property
+        current[boardIndex] = newValue;
+        await this.updateProperty(PropertyKey.STATION_DISABLED, current);
       }
     } catch (err) {
       return Promise.reject(err);
